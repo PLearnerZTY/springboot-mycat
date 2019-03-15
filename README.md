@@ -24,3 +24,5 @@ springboot整合mycat案例，实现读写分离，主从复制
           主库状态，在主库数据库执行：show master status,
           
   3)启动从库服务：start slave
+  
+5：mycat配置文件schema.xml、server.xml和数据库脚本见config目录下
