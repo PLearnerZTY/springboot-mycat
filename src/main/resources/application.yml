@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    druid:
+      username: root
+      password: 123456
+      url: jdbc:mysql://localhost:8066/TESTDB
+      driver-class-name: com.mysql.jdbc.Driver
+
+mybatis:
+  type-aliases-package: com.wenjifeng.entity
+  mapper-locations: classpath:/com/wenjifeng/springbootmycat/*Mapper.xml
+
+

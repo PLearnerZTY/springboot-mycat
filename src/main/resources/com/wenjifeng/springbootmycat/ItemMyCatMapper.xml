@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wenjifeng.springbootmycat.mapper.ItemMyCatMapper">
+
+	<insert id="addItemMyCat" useGeneratedKeys="true" keyProperty="id">
+			insert into item_mycat (id,value,indate)
+				values(#{id},
+					#{value},
+					now()
+				)
+	</insert>
+	
+	<select id="queryItemMyCatById" resultType="com.wenjifeng.springbootmycat.entity.ItemMyCat" parameterType="integer">
+		select * from item_mycat where id = #{id}
+	</select>
+	
+
+</mapper>

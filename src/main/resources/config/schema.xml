@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+
+	<!-- mycat配置详解，请参照 https://www.cnblogs.com/fxwl/p/7990906.html-->
+	<schema name="TESTDB" checkSQLschema="false" sqlMaxLimit="100" dataNode="database1">
+
+			<!-- 设置表的存储方式.schema name="TESTDB" 与 server.xml中的 TESTDB 设置一致  --> 
+			<!--
+			 <table name="user_mycat" primaryKey="id"  dataNode="dn1" />
+			<table name="item_mycat" primaryKey="id" dataNode="dn2,dn3" rule="rule1" >
+			</table>
+			-->
+	</schema>
+
+	 <!-- 设置dataNode 对应的数据库,及 mycat 连接的地址localhost -->
+    <dataNode name="database1" dataHost="localhost1" database="master" />
+
+	<!-- mycat 逻辑主机dataHost对应的物理主机.其中也设置对应的mysql登陆信息 -->
+	<!--
+	1:balance:负载均称类型；
+		1）0：不开启读写分离机制，所有读操作都发送到当前可用的writeHost上
+		2）1：全部的readHost与stand by writeHost参与select语句的负载均衡，简单的说，开启读写分离
+			比如我们配置了1主3从的MySQL主从环境，并把第一个从节点MySQL配置为dataHost中的第二个writeHost，以便主节点宕机后，
+			Mycat自动切换到这个writeHost上来执行写操作，此时balance=1就意味着第一个writeHost不参与读SQL的负载均衡，其他3个都参与
+		3）2：所有读操作都随机的在writeHost、readHost上分发
+		4）3：所有读请求随机的分发到writeHst对应的readHost执行，writeHost不负担读写压力。（1.4之后版本有）
+	2：writeType：负载均衡类型
+		1）0：所有写操作发送到配置的第一个 writeHost，第一个挂了切到还生存的第二个writeHost，重新启动后已切换后的为准，切换记录在配置文件中:dnindex.properties .
+		2）1：所有写操作都随机的发送到配置的 writeHost。1.5以后版本废弃不推荐。
+		3）-1：不自动切换
+			注：默认值自1动切换，基于MySql主从同步的状态决定是否切换心跳语句为 show slave status，
+				基于mysql galary cluster 的切换机制（适合集群）1.4.1 心跳语句为 show status like 'wsrep%'
+	3：dbType：指定后端链接的数据库类型目前支持二进制的mysql协议，还有其他使用jdbc链接的数据库，例如：mongodb，oracle，spark等
+	4：dbDriver：指定连接后段数据库使用的driver，目前可选的值有native和JDBC。使用native的话，因为这个值执行的是二进制的mysql协议，所以可以使用mysql和maridb，其他类型的则需要使用JDBC驱动来支持。
+		如果使用JDBC的话需要符合JDBC4标准的驱动jar 放到mycat\lib目录下，并检查驱动jar包中包括如下目录结构文件 META-INF\services\java.sql.Driver。
+		在这个文件写上具体的driver类名，例如com.mysql.jdbc.Driver。writeHost readHost指定后端数据库的相关配置给mycat，用于实例化后端连接池。
+	5：switchType：
+		1）-1：不自动切换
+		2）1：默认值自动切换
+		3）2：基于MySQL主从同步的状态决定是否切换
+		注：“Mycat心跳检查语句配置为 show slave status ，dataHost 上定义两个新属性： switchType=”2” 与slaveThreshold=”100”，
+			此时意味着开启MySQL主从复制状态绑定的读写分离与切换机制。Mycat心跳机制通过检测 show slave status 中的 “Seconds_Behind_Master”,
+			“Slave_IO_Running”, “Slave_SQL_Running” 三个字段来确定当前主从同步的状态以及Seconds_Behind_Master主从复制时延。“
+
+	-->
+    <dataHost name="localhost1" maxCon="1000" minCon="10"  balance="1" writeType="0" dbType="mysql" dbDriver="native" switchType="2"  slaveThreshold="100">
+            <heartbeat>show slave status</heartbeat>
+			<!-- 3306主库-->
+			<writeHost host="cluster1" url="127.0.0.1:3306" user="root" password="123456">  
+                        <readHost host="slave1" url="127.0.0.1:3307" user="root" password="12345" />  
+			</writeHost>
+			<!-- 3307从库-->
+			<writeHost host="cluster2" url="127.0.0.1:3307" user="root" password="12345"></writeHost>
+    </dataHost> 
+	
+</mycat:schema>
