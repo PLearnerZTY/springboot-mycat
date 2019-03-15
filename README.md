@@ -28,3 +28,14 @@ springboot整合mycat案例，实现读写分离，主从复制
   3)启动从库服务：start slave
   
 5：mycat配置文件schema.xml、server.xml和数据库脚本见config目录下
+
+6：模拟主库master服务停掉，此时通过mycat会自动切换到从库slave，读写操作都会在slave库上进行；
+   
+   重新启动master服务，此时读写任slave库上进行，还是以从库slave为主，新增的数据不会添加到主库上，此时想重新切换master为主库：
+   
+   1）修改mycat安装文件下的conf/dnindex.properties文件中，把localhost1设置0，让localhost1重新成为主节点库
+   
+   2）重启mycat，重启之后，恢复原master主库
+   
+   3）注意：此时新增数据，会在主库master中，没有同步到从库slave中，此时就需要操作步骤4异常处理；处理完毕，主从就能同步
+            处理完毕之后，发现主从库数据不一致，此时就需要对主从库数据同步处理
