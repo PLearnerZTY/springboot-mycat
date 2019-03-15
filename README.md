@@ -17,7 +17,9 @@ springboot整合mycat案例，实现读写分离，主从复制
   1）停止从库服务：stop slave
   
   2)在从库上重新设置同步节点：
+  
     change master to master_host='127.0.0.1',master_port=3306,master_user='root',master_password='123456',master_log_file='mysql-bin.000004',master_log_pos=2141;
+    
     注意：此执行语句必须要与这保持一致，可以更改参数master表示数据库，请设置master数据的host、port、username、password
           master_log_file='mysql-bin.000004'：mysql-bin.000004必须跟主库保持一致(对应主库：File)
           master_log_pos=2141：2141必须跟主库保持一致（对应主库值：Position）
